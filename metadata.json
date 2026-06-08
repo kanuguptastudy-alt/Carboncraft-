@@ -1,0 +1,8 @@
+{
+  "name": "Carbon Footprint Tracker",
+  "description": "Understand, track, and reduce your carbon footprint with interactive calculators, customized challenges, and real-time AI eco-coaching insights.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
