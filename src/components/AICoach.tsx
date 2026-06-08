@@ -71,7 +71,17 @@ export function AICoach({ breakdown, inputs }: AICoachProps) {
       });
 
       if (!response.ok) {
-        throw new Error("Could not load AI Insights. Please check your Gemini server configuration.");
+        const errorText = await response.text();
+        let errMsg = "Could not load AI Insights.";
+        try {
+          const parsed = JSON.parse(errorText);
+          if (parsed.error || parsed.details) {
+            errMsg = parsed.error || parsed.details;
+          }
+        } catch (_) {
+          if (errorText) errMsg = errorText;
+        }
+        throw new Error(errMsg);
       }
 
       const data = await response.json();
@@ -119,7 +129,17 @@ export function AICoach({ breakdown, inputs }: AICoachProps) {
       });
 
       if (!res.ok) {
-        throw new Error("Coaching backend error. Check key limits.");
+        const errorText = await res.text();
+        let errMsg = "Coaching backend error. Check key limits.";
+        try {
+          const parsed = JSON.parse(errorText);
+          if (parsed.error || parsed.details) {
+            errMsg = parsed.error || parsed.details;
+          }
+        } catch (_) {
+          if (errorText) errMsg = errorText;
+        }
+        throw new Error(errMsg);
       }
 
       const data = await res.json();
@@ -137,7 +157,7 @@ export function AICoach({ breakdown, inputs }: AICoachProps) {
       const errorMsg: ChatMessage = {
         id: `msg_err_${Date.now()}`,
         role: "model",
-        text: "⚠️ Sorry, I could not connect with my neural cores. Make sure the Gemini API secret is properly declared in AI Studio.",
+        text: `⚠️ Connect Error: ${err.message || "Failed to reach backend."} Please make sure your GEMINI_API_KEY environment variable is declared in your Netlify or Vercel Settings, save it, and trigger a redeploy of your site code.`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
       setMessages((prev) => [...prev, errorMsg]);
