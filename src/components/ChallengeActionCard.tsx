@@ -5,7 +5,7 @@
 
 import React, { useState, useMemo } from "react";
 import { Challenge, UserChallengeState } from "../types";
-import { Sparkles, Trophy, Plus, Check, Undo2, Flame, Bike, Zap, Apple, Trash2, Tag, Compass } from "lucide-react";
+import { Trophy, Plus, Check, Undo2, Bike, Zap, Apple, Trash2, Compass } from "lucide-react";
 
 interface ChallengeActionCardProps {
   challengesList: Challenge[];

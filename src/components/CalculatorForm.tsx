@@ -55,6 +55,11 @@ export function CalculatorForm({ inputs, onChange }: CalculatorFormProps) {
             </label>
             <input
               type="range"
+              id="input-range-mileage"
+              aria-label="Weekly Driving Distance in Miles"
+              aria-valuemin={0}
+              aria-valuemax={400}
+              aria-valuenow={inputs.mileage}
               min="0"
               max="400"
               step="10"
@@ -105,6 +110,11 @@ export function CalculatorForm({ inputs, onChange }: CalculatorFormProps) {
             </label>
             <input
               type="range"
+              id="input-range-transit"
+              aria-label="Public Transit Weekly Use in Hours"
+              aria-valuemin={0}
+              aria-valuemax={35}
+              aria-valuenow={inputs.publicTransitHours}
               min="0"
               max="35"
               step="1"
@@ -200,6 +210,11 @@ export function CalculatorForm({ inputs, onChange }: CalculatorFormProps) {
             </label>
             <input
               type="range"
+              id="input-range-electricity"
+              aria-label="Monthly Electricity Bill in Dollars"
+              aria-valuemin={0}
+              aria-valuemax={400}
+              aria-valuenow={inputs.electricityBill}
               min="0"
               max="400"
               step="10"
@@ -222,6 +237,11 @@ export function CalculatorForm({ inputs, onChange }: CalculatorFormProps) {
             </label>
             <input
               type="range"
+              id="input-range-clean-energy"
+              aria-label="Green Energy Mix Contract Percentage"
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={inputs.cleanEnergyPercentage}
               min="0"
               max="100"
               step="5"

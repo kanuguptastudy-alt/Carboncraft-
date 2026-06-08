@@ -21,26 +21,34 @@ export const DEFAULT_INPUTS: CalculatorInputs = {
 };
 
 export function calculateCarbonFootprint(inputs: CalculatorInputs): CarbonBreakdown {
+  // Sanitize negative inputs/faulty states defensively to prevent glitch subtraction
+  const mileage = Math.max(0, inputs.mileage || 0);
+  const publicTransitHours = Math.max(0, inputs.publicTransitHours || 0);
+  const flightsShort = Math.max(0, inputs.flightsShort || 0);
+  const flightsLong = Math.max(0, inputs.flightsLong || 0);
+  const electricityBill = Math.max(0, inputs.electricityBill || 0);
+  const cleanEnergyPercentage = Math.min(100, Math.max(0, inputs.cleanEnergyPercentage || 0));
+
   // 1. TRANSPORT (Convert to Metric Tonnes: kg / 1000)
   let carFactor = 0;
   if (inputs.carType === "gas") carFactor = EMISSION_FACTORS.gasCarPerMile;
   else if (inputs.carType === "hybrid") carFactor = EMISSION_FACTORS.hybridCarPerMile;
   else if (inputs.carType === "electric") carFactor = EMISSION_FACTORS.electricCarPerMile;
 
-  const annualCarMiles = inputs.mileage * 52;
+  const annualCarMiles = mileage * 52;
   const carCO2 = annualCarMiles * carFactor;
 
-  const transitCO2 = inputs.publicTransitHours * 52 * EMISSION_FACTORS.publicTransitPerHour;
-  const shortFlightCO2 = inputs.flightsShort * EMISSION_FACTORS.flightShort;
-  const longFlightCO2 = inputs.flightsLong * EMISSION_FACTORS.flightLong;
+  const transitCO2 = publicTransitHours * 52 * EMISSION_FACTORS.publicTransitPerHour;
+  const shortFlightCO2 = flightsShort * EMISSION_FACTORS.flightShort;
+  const longFlightCO2 = flightsLong * EMISSION_FACTORS.flightLong;
 
   const transportTotalTonnes = (carCO2 + transitCO2 + shortFlightCO2 + longFlightCO2) / 1000;
 
   // 2. ENERGY (Convert to Metric Tonnes: kg / 1000)
   // Monthly bill * 12 to get annual spending
-  const annualElectricitySpend = inputs.electricityBill * 12;
+  const annualElectricitySpend = electricityBill * 12;
   // Apply a clean energy percentage discount
-  const electricCO2 = annualElectricitySpend * EMISSION_FACTORS.electricityPerDollar * (1 - inputs.cleanEnergyPercentage / 100);
+  const electricCO2 = annualElectricitySpend * EMISSION_FACTORS.electricityPerDollar * (1 - cleanEnergyPercentage / 100);
 
   let heatingCO2 = 0;
   if (inputs.heatingSource === "gas") heatingCO2 = EMISSION_FACTORS.heatingGasAnnualBase;

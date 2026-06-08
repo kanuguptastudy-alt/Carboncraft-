@@ -6,7 +6,7 @@
 import React, { useMemo } from "react";
 import { CarbonBreakdown, Challenge, UserChallengeState } from "../types";
 import { getComparativeAnalysis } from "../utils/calculator";
-import { ShieldCheck, Flame, Compass, Zap, Car, Utensils, Trash2, ArrowDown, Leaf, TrendingDown } from "lucide-react";
+import { Flame, Zap, Car, Utensils, Trash2, TrendingDown } from "lucide-react";
 
 interface MetricDashboardProps {
   breakdown: CarbonBreakdown;
