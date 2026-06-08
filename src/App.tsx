@@ -10,12 +10,11 @@ import { CUSTOM_CHALLENGES } from "./data/carbonActions";
 import { MetricDashboard } from "./components/MetricDashboard";
 import { CalculatorForm } from "./components/CalculatorForm";
 import { ChallengeActionCard } from "./components/ChallengeActionCard";
-import { AICoach } from "./components/AICoach";
 import { DiagnosticsPanel } from "./components/DiagnosticsPanel";
 import { Leaf, Eye, ClipboardList, Award, Sparkles, Activity } from "lucide-react";
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<"dashboard" | "calculator" | "challenges" | "coach" | "diagnostics">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "calculator" | "challenges" | "diagnostics">("dashboard");
 
   // Load state from localStorage or use defaults
   const [inputs, setInputs] = useState<CalculatorInputs>(() => {
@@ -119,7 +118,6 @@ export default function App() {
               { id: "dashboard", label: "My Footprint Dashboard", icon: <Eye size={15} /> },
               { id: "calculator", label: "Configure Emissions", icon: <ClipboardList size={15} /> },
               { id: "challenges", label: "Eco Action Hub", icon: <Award size={15} /> },
-              { id: "coach", label: "AI Climate Coach", icon: <Sparkles size={15} /> },
               { id: "diagnostics", label: "System Diagnostics", icon: <Activity size={15} /> }
             ].map((tab) => (
               <button
@@ -169,13 +167,6 @@ export default function App() {
               onCommit={handleCommitChallenge}
               onComplete={handleCompleteChallenge}
               onAbandon={handleAbandonChallenge}
-            />
-          )}
-
-          {activeTab === "coach" && (
-            <AICoach
-              breakdown={breakdown}
-              inputs={inputs}
             />
           )}
 
