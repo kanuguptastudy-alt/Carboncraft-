@@ -89,6 +89,7 @@ export function CalculatorForm({ inputs, onChange }: CalculatorFormProps) {
                 <button
                   key={car.key}
                   type="button"
+                  aria-pressed={inputs.carType === car.key}
                   onClick={() => updateField("carType", car.key)}
                   className={`py-2 px-1 text-xs rounded-xl font-medium border text-center transition-all ${
                     inputs.carType === car.key
@@ -271,6 +272,7 @@ export function CalculatorForm({ inputs, onChange }: CalculatorFormProps) {
                 <button
                   key={h.key}
                   type="button"
+                  aria-pressed={inputs.heatingSource === h.key}
                   onClick={() => updateField("heatingSource", h.key)}
                   className={`py-2.5 px-2 text-xs rounded-xl font-medium border text-center transition-all ${
                     inputs.heatingSource === h.key
@@ -315,6 +317,7 @@ export function CalculatorForm({ inputs, onChange }: CalculatorFormProps) {
                 <button
                   key={diet.key}
                   type="button"
+                  aria-pressed={inputs.dietType === diet.key}
                   onClick={() => updateField("dietType", diet.key)}
                   className={`p-3 text-xs rounded-2xl font-medium border text-center flex flex-col items-center justify-center transition-all ${
                     inputs.dietType === diet.key
@@ -343,6 +346,7 @@ export function CalculatorForm({ inputs, onChange }: CalculatorFormProps) {
                 <button
                   key={waste.key}
                   type="button"
+                  aria-pressed={inputs.foodWaste === waste.key}
                   onClick={() => updateField("foodWaste", waste.key)}
                   className={`py-2 px-1 text-xs rounded-xl font-medium border text-center transition-all flex flex-col justify-center items-center ${
                     inputs.foodWaste === waste.key
@@ -375,6 +379,7 @@ export function CalculatorForm({ inputs, onChange }: CalculatorFormProps) {
                   <button
                     key={item.key}
                     type="button"
+                    aria-pressed={isActive}
                     onClick={() => toggleRecycling(item.key)}
                     className={`py-1.5 px-3 text-xs rounded-full border transition-all ${
                       isActive

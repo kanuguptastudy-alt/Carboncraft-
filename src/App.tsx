@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { CalculatorInputs, UserChallengeState } from "./types";
 import { DEFAULT_INPUTS, calculateCarbonFootprint } from "./utils/calculator";
 import { CUSTOM_CHALLENGES } from "./data/carbonActions";
@@ -49,20 +49,24 @@ export default function App() {
     return calculateCarbonFootprint(inputs);
   }, [inputs]);
 
-  // Handle Eco Challenge Pledges
-  const handleCommitChallenge = (challengeId: string) => {
-    if (userChallenges.some((uc) => uc.challengeId === challengeId && uc.status !== "abandoned")) {
-      return; // Already active or done
-    }
-    const newPledge: UserChallengeState = {
-      challengeId,
-      committedAt: new Date().toISOString(),
-      status: "committed"
-    };
-    setUserChallenges((prev) => [...prev, newPledge]);
-  };
+  // Handle Eco Challenge Pledges via memoized useCallback functions
+  const handleCommitChallenge = useCallback((challengeId: string) => {
+    setUserChallenges((prev) => {
+      if (prev.some((uc) => uc.challengeId === challengeId && uc.status !== "abandoned")) {
+        return prev;
+      }
+      return [
+        ...prev,
+        {
+          challengeId,
+          committedAt: new Date().toISOString(),
+          status: "committed"
+        }
+      ];
+    });
+  }, []);
 
-  const handleCompleteChallenge = (challengeId: string) => {
+  const handleCompleteChallenge = useCallback((challengeId: string) => {
     setUserChallenges((prev) =>
       prev.map((uc) =>
         uc.challengeId === challengeId
@@ -70,11 +74,11 @@ export default function App() {
           : uc
       )
     );
-  };
+  }, []);
 
-  const handleAbandonChallenge = (challengeId: string) => {
+  const handleAbandonChallenge = useCallback((challengeId: string) => {
     setUserChallenges((prev) => prev.filter((uc) => uc.challengeId !== challengeId));
-  };
+  }, []);
 
   return (
     <div className="min-h-screen bg-slate-50/65 text-slate-800 flex flex-col font-sans" id="app-root">
@@ -113,7 +117,7 @@ export default function App() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white rounded-3xl p-3 border border-slate-100 shadow-xs" id="tabs-navigation-panel">
           
           {/* Menu items */}
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-1.5" role="tablist" aria-label="Carbon Dashboard Sections">
             {[
               { id: "dashboard", label: "My Footprint Dashboard", icon: <Eye size={15} /> },
               { id: "calculator", label: "Configure Emissions", icon: <ClipboardList size={15} /> },
@@ -123,6 +127,8 @@ export default function App() {
               <button
                 key={tab.id}
                 type="button"
+                role="tab"
+                aria-selected={activeTab === tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
                 className={`flex items-center gap-2 py-2 px-4 rounded-2xl text-xs font-semibold transition-all ${
                   activeTab === tab.id

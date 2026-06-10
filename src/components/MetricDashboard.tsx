@@ -31,13 +31,29 @@ export function MetricDashboard({ breakdown, userChallenges, challengesList }: M
     return sum;
   }, [userChallenges, challengesList]);
 
-  const offsetTonnes = Number((totalOffsetKg / 1000).toFixed(2));
-  const potentialRemainingFootprint = Math.max(0.1, Number((breakdown.total - offsetTonnes).toFixed(2)));
+  const { offsetTonnes, potentialRemainingFootprint, activeChallengesCount } = useMemo(() => {
+    const tonnes = Number((totalOffsetKg / 1000).toFixed(2));
+    const potential = Math.max(0.1, Number((breakdown.total - tonnes).toFixed(2)));
+    const activeCount = userChallenges.filter(u => u.status === 'committed' || u.status === 'completed').length;
+    return { offsetTonnes: tonnes, potentialRemainingFootprint: potential, activeChallengesCount: activeCount };
+  }, [totalOffsetKg, breakdown.total, userChallenges]);
 
-  // Gauge constants
-  const gaugePercent = Math.min(100, Math.max(5, (breakdown.total / 18) * 100)); // normalized up to 18 tonnes
-  const circumference = 2 * Math.PI * 50; // radius = 50, circum ~314
-  const strokeDashoffset = circumference - (gaugePercent / 100) * circumference;
+  // Gauge constants memoized
+  const { gaugePercent, strokeDashoffset, strokeColor } = useMemo(() => {
+    const percent = Math.min(100, Math.max(5, (breakdown.total / 18) * 100));
+    const offset = 465 - (percent / 100) * 465;
+    let color = "#10b981"; // default emerald
+    if (breakdown.total <= 2.0) {
+      color = "#10b981"; // emerald
+    } else if (breakdown.total <= 4.5) {
+      color = "#14b8a6"; // teal
+    } else if (breakdown.total <= 10.0) {
+      color = "#f59e0b"; // amber
+    } else {
+      color = "#f43f5e"; // rose
+    }
+    return { gaugePercent: percent, strokeDashoffset: offset, strokeColor: color };
+  }, [breakdown.total]);
 
   // Let's identify the largest component
   const largestCategory = useMemo(() => {
@@ -56,7 +72,7 @@ export function MetricDashboard({ breakdown, userChallenges, challengesList }: M
   }, [breakdown]);
 
   // Generate SVG coordinates for dynamic path trend line
-  const forecastCoords = useMemo(() => {
+  const { forecastCoords, rawLinePath } = useMemo(() => {
     // We will show a line from current footprint to reduced footprint
     // 5 steps: Initial, Step 1, Step 2, Step 3, Target
     const stepsCount = 5;
@@ -71,10 +87,9 @@ export function MetricDashboard({ breakdown, userChallenges, challengesList }: M
       const y = 150 - (val / 20) * 130;
       points.push({ x, y, val });
     }
-    return points;
+    const path = points.map(p => `${p.x},${p.y}`).join(" ");
+    return { forecastCoords: points, rawLinePath: path };
   }, [breakdown.total, offsetTonnes]);
-
-  const rawLinePath = forecastCoords.map(p => `${p.x},${p.y}`).join(" ");
 
   return (
     <div className="space-y-6" id="metric-dashboard">
@@ -103,16 +118,8 @@ export function MetricDashboard({ breakdown, userChallenges, challengesList }: M
                 strokeWidth="12"
                 strokeLinecap="round"
                 strokeDasharray="465"
-                strokeDashoffset={465 - (Math.min(100, Math.max(5, (breakdown.total / 18) * 100)) / 100) * 465}
-                stroke={
-                  breakdown.total <= 2.0
-                    ? "#10b981" // emerald
-                    : breakdown.total <= 4.5
-                    ? "#14b8a6" // teal
-                    : breakdown.total <= 10.0
-                    ? "#f59e0b" // amber
-                    : "#f43f5e" // rose
-                }
+                strokeDashoffset={strokeDashoffset}
+                stroke={strokeColor}
               />
             </svg>
             
@@ -159,7 +166,7 @@ export function MetricDashboard({ breakdown, userChallenges, challengesList }: M
               <div className="text-lg font-sans font-bold text-emerald-800">
                 -{offsetTonnes} t
               </div>
-              <div className="text-[10px] text-emerald-600 mt-0.5">{userChallenges.filter(u => u.status === 'committed' || u.status === 'completed').length} challenge paths</div>
+              <div className="text-[10px] text-emerald-600 mt-0.5">{activeChallengesCount} challenge paths</div>
             </div>
           </div>
         </div>
@@ -271,9 +278,9 @@ export function MetricDashboard({ breakdown, userChallenges, challengesList }: M
                 <line x1="20" y1="85" x2="380" y2="85" className="stroke-slate-100" strokeWidth="1" strokeDasharray="3 3" />
                 <line x1="20" y1="150" x2="380" y2="150" className="stroke-slate-100" strokeWidth="1" strokeDasharray="3 3"/>
 
-                <span className="absolute top-[10px] left-1 text-[9px] font-mono text-slate-400">20t</span>
-                <span className="absolute top-[75px] left-1 text-[9px] font-mono text-slate-400">10t</span>
-                <span className="absolute top-[140px] left-1 text-[9px] font-mono text-slate-400">0t</span>
+                <text x="5" y="23" className="fill-slate-400 font-mono text-[9.5px]">20t</text>
+                <text x="5" y="88" className="fill-slate-400 font-mono text-[9.5px]">10t</text>
+                <text x="5" y="153" className="fill-slate-400 font-mono text-[9.5px]">0t</text>
 
                 {/* Plot Area Shading */}
                 <path
